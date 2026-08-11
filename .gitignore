@@ -1,0 +1,27 @@
+# Ignore AWS credentials and config files
+aws-config.sh
+.aws/
+
+# Ignore system files
+*.log
+*.tmp
+*.swp
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore Node.js dependencies (if used)
+node_modules/
+
+# Ignore environment files
+.env
+*.env
+
+# Ignore IDE/editor settings
+.vscode/
+.idea/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
