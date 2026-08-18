@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Create Instance and get the instance id
-
 AMI_ID="ami-0220d79f3f480ecf5"
 SG_ID="sg-03b82330a83a2ba79"
 H_ZONE_ID="Z1007411AWVOBZQ97XGF"
@@ -20,7 +18,7 @@ do
     # Wait until instance is running
     aws ec2 wait instance-running --instance-ids "$Instance_ID"
 
-    # Create PublicIpAddress or PrivateIpAddress based on InstanceId
+    # Fetch IP
     if [ "$instance" != "frontend" ]; then
         IP=$( aws ec2 describe-instances \
             --instance-ids "$Instance_ID" \
@@ -30,26 +28,25 @@ do
         IP=$( aws ec2 describe-instances \
             --instance-ids "$Instance_ID" \
             --query "Reservations[0].Instances[0].PublicIpAddress" \
-            --output text )	
+            --output text )
     fi
 
-	RECORD_NAME="$instance.$DOMAIN_NAME"
+    RECORD_NAME="$instance.$DOMAIN_NAME"
     echo "$instance: $IP"
 
-	aws route53 change-resource-record-sets \
-	  --hosted-zone-id $H_ZONE_ID \
-	  --change-batch '
-	  {
-	  	"Comment": "Udating Record Set",
-		"Changes": [{
-		  "Action": "UPSERT",
-		  "ResourceRecordSet": {
-			"Name": "'"$RECORD_NAME"'",
-			"Type": "A",
-			"TTL": 1,
-			"ResourceRecords": [{ "Value": "'"$IP"'" }]
-		  }
-		}]
-	  }
-	  '
+    # Update DNS record
+    aws route53 change-resource-record-sets \
+      --hosted-zone-id $H_ZONE_ID \
+      --change-batch "{
+            \"Comment\": \"Updating Record Set\",
+            \"Changes\": [{
+              \"Action\": \"UPSERT\",
+              \"ResourceRecordSet\": {
+                    \"Name\": \"$RECORD_NAME\",
+                    \"Type\": \"A\",
+                    \"TTL\": 300,
+                    \"ResourceRecords\": [{ \"Value\": \"$IP\" }]
+              }
+            }]
+      }"
 done
