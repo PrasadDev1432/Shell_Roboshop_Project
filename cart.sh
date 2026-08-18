@@ -1,16 +1,21 @@
 #!/bin/bash
 
 USERID=$(id -u)
-R="\e[31m"
-G="\e[31m"
-Y="\e[31m"
-N="\e[31m"
+R="\e[31m"  # Red
+G="\e[32m"  # Green
+Y="\e[33m"  # Yellow
+N="\e[0m"   # Reset
+
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo "$0" | cut -d "." -f1)
 LOGS_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
-START_TIME="$(date + %s)"
+START_TIME="$(date +%s)"
 SCRIPT_DIR=$(pwd)
+
+mkdir -p $LOGS_FOLDER
+echo -e "Project Executed at : $(date)"
+
 
 if [ "$USERID" -ne 0 ]; then
     echo "ERROR:: Please run this script with root privelege"
@@ -27,7 +32,7 @@ VALIDATE(){
 }
 
 EXECUTE_TIME(){
-	END_TIME="$(date + %s)"
+	END_TIME="$(date +%s)"
 	TOTAL_TIME=$(("$END_TIME" - "$START_TIME"))
 	echo -e "Script executed time : $Y $TOTAL_TIME Seconds $N" | tee -a "$LOGS_FILE"	
 }
@@ -44,7 +49,7 @@ if [ "$?" -ne 0 ]; then
 	useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>"$LOGS_FILE"
 	VALIDATE "$?" "Add application User"
 else
-	echo -e "System User Already Added"
+	echo -e "System User Already Added" | tee -a "$LOGS_FILE"
 fi
 
 mkdir -p /app &>>"$LOGS_FILE"
@@ -60,7 +65,7 @@ cd /app || exit &>>"$LOGS_FILE"
 npm install  &>>"$LOGS_FILE"
 VALIDATE "$?" "Lets download the dependencies."
 
-cp "$SCRIPT_DIR"/cart.service /etc/systemd/system/cart.service
+cp "$SCRIPT_DIR"/cart.service /etc/systemd/system/cart.service &>>"$LOGS_FILE"
 VALIDATE "$?" "Setup SystemD Cart Service"
 
 systemctl daemon-reload &>>"$LOGS_FILE"

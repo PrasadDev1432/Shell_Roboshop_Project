@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USERID=$(id -u)
-R="\e[33m"
-G="\e[32"
-Y="\e[31"
-N="\e[0"
+R="\e[31m"  # Red
+G="\e[32m"  # Green
+Y="\e[33m"  # Yellow
+N="\e[0m"   # Reset
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME="$(echo "$0" | cut -d "." -f1)"
@@ -29,9 +29,9 @@ VALIDATE(){
 }
 
 EXECUTE_TIME(){
-END_TIME="$(date +%s)"
-TOTAL_TIME=$(("$END_TIME" - "$START_TIME"))
-echo -e "Script Executed Time In Seconds : $Y $TOTAL_TIME $N" | tee -a "$LOGS_FILE"
+	END_TIME="$(date +%s)"
+	TOTAL_TIME=$(("$END_TIME" - "$START_TIME"))
+	echo -e "Script Executed Time In Seconds : $Y $TOTAL_TIME $N" | tee -a "$LOGS_FILE" 
 }
 
 

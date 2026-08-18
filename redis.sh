@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USERID=$(id -u)
-R="\e[31m"
-G="\e[32m"
-Y="\e[33m"
-N="\e[0m"
+R="\e[31m"  # Red
+G="\e[32m"  # Green
+Y="\e[33m"  # Yellow
+N="\e[0m"   # Reset
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo "$0" | cut -d "." -f1 )
@@ -50,3 +50,5 @@ VALIDATE $? "Allowing Remote connections to Redis"
 systemctl enable redis  &>>"$LOGS_FILE"
 systemctl start redis  &>>"$LOGS_FILE"
 VALIDATE "$?" "Start & Enable Redis Service"
+
+print_total_time

@@ -1,10 +1,11 @@
 #!/bin/bash
 
 USERID=$(id -u)
-R="\e[31m"
-G="\e[32m"
-Y="\e[33m"
-N="\e[0m"
+
+R="\e[31m"  # Red
+G="\e[32m"  # Green
+Y="\e[33m"  # Yellow
+N="\e[0m"   # Reset
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo "$0" | cut -d "." -f1)
@@ -60,7 +61,6 @@ VALIDATE "$?" "Lets setup an app directory."
 
 curl -o /tmp/$app_name.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>"$LOGS_FILE"
 cd /app || exit &>>"$LOGS_FILE"
-
 VALIDATE "$?" "Download the application code to created app directory."
 
 unzip /tmp/$app_name.zip &>>"$LOGS_FILE"
@@ -71,7 +71,6 @@ npm install &>>"$LOGS_FILE"
 VALIDATE "$?" "Lets downloading the dependencies."
 
 cp "$SCRIPT_DIR/$app_name.service" /etc/systemd/system/$app_name.service
-
 systemctl daemon-reload &>>"$LOGS_FILE"
 VALIDATE "$?" "Load the service."
 
@@ -79,7 +78,7 @@ systemctl enable $app_name &>>"$LOGS_FILE"
 systemctl start $app_name &>>"$LOGS_FILE"
 VALIDATE "$?" "Start & Enable $app_name service"
 
-cp "$SCRIPT_DIR/mongodb.repo" "/etc/yum.repos.d/mongo.repo" &>>"$LOGS_FILE"
+cp "$SCRIPT_DIR/mongo.repo" "/etc/yum.repos.d/mongo.repo" &>>"$LOGS_FILE"
 VALIDATE "$?" "Installing mongodb-client service"
 
 dnf install mongodb-mongosh -y &>>"$LOGS_FILE"
