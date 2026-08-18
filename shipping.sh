@@ -15,6 +15,8 @@ SCRIPT_DIR=$(pwd)
 mkdir -p $LOGS_FOLDER
 echo -e "Project Executed at : $(date)"
 
+MYSQL_HOST="mysql.prasaddev.shop"
+
 if [ "$USERID" -ne 0 ]; then
 	echo -e "ERROR:: Please run this script with root privelege" | tee -a "$LOGS_FILE"
 	exit 1
