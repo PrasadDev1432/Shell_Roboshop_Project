@@ -6,7 +6,7 @@ G="\e[32"
 Y="\e[31"
 N="\e[0"
 
-LOGS_FOLDER="/var/logs/shell-roboshop"
+LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME="$(echo "$0" | cut -d "." -f1)"
 LOGS_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 

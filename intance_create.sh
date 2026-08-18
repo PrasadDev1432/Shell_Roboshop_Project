@@ -5,6 +5,10 @@ SG_ID="sg-03b82330a83a2ba79"
 H_ZONE_ID="Z1007411AWVOBZQ97XGF"
 DOMAIN_NAME="prasaddev.shop"
 
+R="\e[33m"
+G="\e[32m"
+N="\e[0m"
+
 for instance in "$@"
 do
     # Instance create చేసి ID తీసుకోవడం
@@ -33,7 +37,7 @@ do
 
     RECORD_NAME="$instance.$DOMAIN_NAME"
 
-    echo "$instance: PrivateIP=$Private_IP | PublicIP=$Public_IP"
+    echo -e "$instance: PrivateIP=$R $Private_IP $N | PublicIP= $G $Public_IP $N"
 
     # Route53 లో DNS record update చేయడం (Private IP ని point చేస్తుంది)
     aws route53 change-resource-record-sets \
