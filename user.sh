@@ -36,24 +36,19 @@ EXECUTE_TIME(){
 	echo -e "Script executed time in seconds : $Y $TOTAL_TIME Seconds $N" | tee -a "$LOGS_FILE"	
 }
 
+dnf module disable nodejs -y &>>"$LOGS_FILE"
+VALIDATE $? "Disabling NodeJS"
 
-print_total_time(){
-    END_TIME="$(date +%s)"
-    TOTAL_TIME=$(("$END_TIME" - "$START_TIME"))
-    echo -e "Script executed in: $Y $TOTAL_TIME Seconds $N" | tee -a "$LOGS_FILE"
-}
+dnf module enable nodejs:20 -y  &>>"$LOGS_FILE"
+VALIDATE $? "Enabling NodeJS 20"
 
-
-
-dnf module disable nodejs -y
-dnf module enable nodejs:20 -y
-dnf install nodejs -y
+dnf install nodejs -y &>>"$LOGS_FILE"
 VALIDATE "$?" "Installing NodeJS"
 
-id roboshop
+id roboshop &>>"$LOGS_FILE"
 
 if [ "$?" -ne 0 ]; then
-	useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+	useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>"$LOGS_FILE"
 	VALIDATE "$?" "Adding System User"
 else
 	echo -e "User Already Added $Y ............SKIPPING $N" | tee -a "$LOGS_FILE"
@@ -62,12 +57,19 @@ fi
 mkdir -p /app 
 VALIDATE "$?" "create App Directory"
 
-curl -L -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip 
-cd /app || exit 
-unzip /tmp/user.zip
-VALIDATE "$?" "Download the application code to created app directory."
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip 
+VALIDATE $? "Downloading user application"
 
-npm install 
+cd /app || exit 
+VALIDATE $? "Changing to app directory"
+
+rm -rf /app/*
+VALIDATE $? "Removing existing code"
+
+unzip /tmp/user.zip &>>"$LOGS_FILE"
+VALIDATE "$?" "Unzip the user"
+
+npm install &>>"$LOGS_FILE"
 VALIDATE "$?" "Lets download the dependencies."
 
 cp "$SCRIPT_DIR/user.service" "/etc/systemd/system/user.service"
@@ -76,8 +78,8 @@ VALIDATE "$?" "Setup SystemD User Service"
 systemctl daemon-reload
 VALIDATE "$?" "Load the service."
 
-systemctl enable user 
-systemctl start user
+systemctl enable user &>>"$LOGS_FILE"
+systemctl restart user &>>"$LOGS_FILE"
 VALIDATE "$?" "Start the service."
 
 EXECUTE_TIME

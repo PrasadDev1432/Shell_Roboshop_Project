@@ -11,7 +11,6 @@ N="\e[0m"
 
 for instance in "$@"
 do
-    # Instance create చేసి ID తీసుకోవడం
     Instance_ID=$( aws ec2 run-instances \
         --image-id $AMI_ID \
         --instance-type t3.micro \
@@ -20,16 +19,13 @@ do
         --query "Instances[0].InstanceId" \
         --output text )
 
-    # Instance running అయ్యే వరకు wait చేయడం
     aws ec2 wait instance-running --instance-ids "$Instance_ID"
 
-    # Private IP తీసుకోవడం
     Private_IP=$( aws ec2 describe-instances \
         --instance-ids "$Instance_ID" \
         --query "Reservations[0].Instances[0].PrivateIpAddress" \
         --output text )
 
-    # Public IP తీసుకోవడం
     Public_IP=$( aws ec2 describe-instances \
         --instance-ids "$Instance_ID" \
         --query "Reservations[0].Instances[0].PublicIpAddress" \
@@ -39,7 +35,13 @@ do
 
     echo -e "$instance: PrivateIP=$R $Private_IP $N | PublicIP= $G $Public_IP $N"
 
-    # Route53 లో DNS record update చేయడం (Private IP ని point చేస్తుంది)
+    # Condition: frontend కి Public IP, बाकीకి Private IP
+    if [ "$instance" == "frontend" ]; then
+        IP_TO_USE=$Public_IP
+    else
+        IP_TO_USE=$Private_IP
+    fi
+
     aws route53 change-resource-record-sets \
       --hosted-zone-id $H_ZONE_ID \
       --change-batch "{
@@ -50,7 +52,7 @@ do
                     \"Name\": \"$RECORD_NAME\",
                     \"Type\": \"A\",
                     \"TTL\": 300,
-                    \"ResourceRecords\": [{ \"Value\": \"$Private_IP\" }]
+                    \"ResourceRecords\": [{ \"Value\": \"$IP_TO_USE\" }]
               }
             }]
       }"

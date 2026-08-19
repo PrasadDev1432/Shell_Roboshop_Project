@@ -14,11 +14,11 @@ START_TIME="$(date +%s)"
 SCRIPT_DIR=$(pwd)
 
 mkdir -p $LOGS_FOLDER
-echo -e "Project Executed at : $(date)"
+echo -e "Project Executed at : $(date)" | tee -a "$LOGS_FILE"
 
 
 if [ "$USERID" -ne 0 ]; then
-    echo "ERROR:: Please run this script with root privelege"
+    echo -e  "$R ERROR:: Please run this script with root privelege $N"
     exit 1 # failure is other than 0
 fi
 
@@ -55,11 +55,18 @@ fi
 mkdir -p /app &>>"$LOGS_FILE"
 VALIDATE "$?" "Lets setup an app directory."
 
-
 curl -L -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>>"$LOGS_FILE"
+VALIDATE $? "Downloading cart application"
+
 cd /app || exit &>>"$LOGS_FILE"
+VALIDATE $? "Changing to app directory"
+
+rm -rf /app/*
+VALIDATE $? "Removing existing code"
+
+
 unzip /tmp/cart.zip &>>"$LOGS_FILE"
-VALIDATE "$?" "Download the application code to created app directory."
+VALIDATE "$?" "unzip cart"
 
 cd /app || exit &>>"$LOGS_FILE"
 npm install  &>>"$LOGS_FILE"
@@ -72,7 +79,7 @@ systemctl daemon-reload &>>"$LOGS_FILE"
 VALIDATE "$?" "Load the service."
 
 systemctl enable cart &>>"$LOGS_FILE"
-systemctl start cart &>>"$LOGS_FILE"
+systemctl restart cart &>>"$LOGS_FILE"
 VALIDATE "$?" "Start & Enable the service."
 
 EXECUTE_TIME

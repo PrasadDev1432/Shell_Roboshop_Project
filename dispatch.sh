@@ -51,6 +51,10 @@ VALIDATE "$?" "Lets setup an app directory"
 
 curl -L -o /tmp/dispatch.zip https://roboshop-artifacts.s3.amazonaws.com/dispatch-v3.zip  &>>"$LOGS_FILE"
 cd /app || exit 
+
+rm -rf /app/*
+VALIDATE $? "Removing existing code"
+
 unzip /tmp/dispatch.zip &>>"$LOGS_FILE"
 VALIDATE "$?" "Download the application code to created app directory."
 
