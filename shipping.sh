@@ -23,7 +23,7 @@ if [ "$USERID" -ne 0 ]; then
 fi
 
 VALIDATE(){
-	if [ "$?" -ne 0 ]; then
+	if [ "$1" -ne 0 ]; then
 		echo -e "$2 $R .........................FAILURE $N" | tee -a "$LOGS_FILE"
 		exit 1
 	else
@@ -86,11 +86,11 @@ VALIDATE "$?" "start the service."
 dnf install mysql -y  &>>"$LOGS_FILE"
 VALIDATE "$?" "Installing Mysql Server"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>$LOG_FILE
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>"$LOGS_FILE"
 if [ $? -ne 0 ]; then
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>>$LOG_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>$LOG_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>>$LOG_FILE
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>>"$LOGS_FILE"
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>"$LOGS_FILE"
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>>"$LOGS_FILE"
 else
     echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
 fi

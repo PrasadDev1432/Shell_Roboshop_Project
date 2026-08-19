@@ -1,12 +1,11 @@
 [Unit]
-Description = Cart Service
+Description=Cart Service
+
 [Service]
 User=roboshop
-// highlight-start
 Environment=REDIS_HOST=redis.prasaddev.shop
-Environment=CATALOGUE_HOST=catalouge.prasaddev.shop
+Environment=CATALOGUE_HOST=catalogue.prasaddev.shop
 Environment=CATALOGUE_PORT=8080
-// highlight-end
 ExecStart=/bin/node /app/server.js
 SyslogIdentifier=cart
 

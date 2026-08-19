@@ -3,10 +3,8 @@ Description=Shipping Service
 
 [Service]
 User=roboshop
-// highlight-start
 Environment=CART_ENDPOINT=cart.prasaddev.shop:8080
 Environment=DB_HOST=mysql.prasaddev.shop
-// highlight-end
 ExecStart=/bin/java -jar /app/shipping.jar
 SyslogIdentifier=shipping
 
