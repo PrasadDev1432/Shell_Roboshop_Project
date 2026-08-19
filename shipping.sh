@@ -52,7 +52,7 @@ fi
 mkdir -p /app  &>>"$LOGS_FILE"
 VALIDATE "$?" "Lets setup an app directory"
 
-curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>>"$LOGS_FILE"
+curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>>"$LOGS_FILE"
 VALIDATE $? "Downloading shipping application"
 
 
@@ -86,14 +86,12 @@ VALIDATE "$?" "start the service."
 dnf install mysql -y  &>>"$LOGS_FILE"
 VALIDATE "$?" "Installing Mysql Server"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>"$LOGS_FILE"
-if [ $? -ne 0 ]; then
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>>"$LOGS_FILE"
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>"$LOGS_FILE"
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>>"$LOGS_FILE"
-else
-    echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
-fi
+
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
+
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql 
+
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql
 
 systemctl restart shipping  &>>"$LOGS_FILE"
 VALIDATE "$?" "Restart Shipping Service"
