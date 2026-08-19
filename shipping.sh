@@ -76,24 +76,30 @@ VALIDATE "$?" "Setup SystemD Shipping Service"
 systemctl daemon-reload  &>>"$LOGS_FILE"
 VALIDATE "$?" "Load the service."
 
-systemctl enable shipping  &>>"$LOGS_FILE"
-VALIDATE "$?" "enable the service."
+systemctl enable shipping &>>"$LOGS_FILE"
+VALIDATE "$?" "Enable Shipping Service"
 
-systemctl start shipping  &>>"$LOGS_FILE"
-VALIDATE "$?" "start the service."
+dnf install mysql -y &>>"$LOGS_FILE"
+VALIDATE "$?" "Installing MySQL Client"
 
+mysql -h "$MYSQL_HOST" -uroot -pRoboShop@1 -e "USE cities" &>>"$LOGS_FILE"
 
-dnf install mysql -y  &>>"$LOGS_FILE"
-VALIDATE "$?" "Installing Mysql Server"
+if [ "$?" -ne 0 ]; then
 
+    mysql -h "$MYSQL_HOST" -uroot -pRoboShop@1 < /app/db/schema.sql &>>"$LOGS_FILE"
+    VALIDATE "$?" "Loading Schema"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
+    mysql -h "$MYSQL_HOST" -uroot -pRoboShop@1 < /app/db/app-user.sql &>>"$LOGS_FILE"
+    VALIDATE "$?" "Loading Application User"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql 
+    mysql -h "$MYSQL_HOST" -uroot -pRoboShop@1 < /app/db/master-data.sql &>>"$LOGS_FILE"
+    VALIDATE "$?" "Loading Master Data"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql
+else
+    echo -e "Shipping data already loaded ... $Y SKIPPING $N"
+fi
 
-systemctl restart shipping  &>>"$LOGS_FILE"
+systemctl restart shipping &>>"$LOGS_FILE"
 VALIDATE "$?" "Restart Shipping Service"
 
 EXECUTED_TIME
